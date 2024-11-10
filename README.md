@@ -1,7 +1,7 @@
 # Java-Multi-Threading
 Java-Multi-Threading题目
 
-
+## base文件夹下
 ### 多线程知识：三个线程如何交替打印ABC循环100次 (单个JVM内的实现方法)
 
 这是一个典型的多线程同步的问题，需要保证每个线程在打印字母之前，能够判断是否轮到自己执行，以及在打印字母之后，能够通知下一个线程执行。介绍以下5种方法：
@@ -36,3 +36,19 @@ CyclicBarrier是Java中的一个类，用于实现多个线程之间的屏障。
 
 我们可以使用一个CyclicBarrier对象，指定三个线程为参与等待数，以及一个打印字母的到达屏障点动作。每个线程在执行完自己的任务后，需要调用CyclicBarrier对象的await方法，等待其他线程到达屏障点。当所有线程都到达屏障点时，会执行打印字母的屏障动作，并根据state的值判断应该打印哪个字母。然后，每个线程继续执行自己的任务，直到循环结束。需要注意得就是由于打印操作在到达屏障点得动作内执行，所以三个线程得循环次数得乘以参与线程数量，也就是三。
 
+
+## start文件夹下
+
+AQS，全称是 AbstractQueuedSynchronizer，中文译为抽象队列式同步器。这个抽象类对于JUC并发包非常重要，JUC包中的ReentrantLock，，Semaphore，ReentrantReadWriteLock，CountDownLatch 等等几乎所有的类都是基于AQS实现的。
+
+
+AQS 中有两个重要的东西，一个以Node为节点实现的链表的队列(CHL队列)，还有一个STATE标志，并且通过CAS来改变它的值。
+### JAVA同时启动多个线程
+    1. CountDownLatch实现
+初始化CountDownLatch时会初始化其内部的计数器，然后每次调用countDown()方法时计数器会减1，当计数器减为0时线程才会开始执行。
+
+
+CountDownLatch是使用AQS实现的，其使用AQS的状态值来存储计数器的值，在初始化的时候设置计数器的值，调用await()方法将当前线程放入AQS的阻塞队列等待计数器的值变为0后返回。多个线程调用countDown()方法时会原子性地对计数器的值递减1，当计数器的值变为0时，当前线程会调用AQS的doReleaseShared()方法释放资源，从而激活被await()方法阻塞的线程。
+
+    2. CyclicBarrier实现
+CyclicBarrier基于独占锁实现，本质底层还是基于AQS，其内部维护了count和parties两个变量，这也就是为什么CyclicBarrier能复用的原因，一开始的时候count等于parties，每当有线程调用await()方法时，count就减1，当count等于0时所有线程开始执行，同时会将parties的值赋给count，从而进行复用。
