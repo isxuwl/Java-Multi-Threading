@@ -52,3 +52,4 @@ CountDownLatch是使用AQS实现的，其使用AQS的状态值来存储计数器
 
     2. CyclicBarrier实现
 CyclicBarrier基于独占锁实现，本质底层还是基于AQS，其内部维护了count和parties两个变量，这也就是为什么CyclicBarrier能复用的原因，一开始的时候count等于parties，每当有线程调用await()方法时，count就减1，当count等于0时所有线程开始执行，同时会将parties的值赋给count，从而进行复用。
+ 
